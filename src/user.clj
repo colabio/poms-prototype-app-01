@@ -39,7 +39,7 @@
   (alter-var-root #'datomic-client (constantly (datomic.client.api/client {:server-type :dev-local
                                                                            ;;storage-dir'ı memoryde değil belirli bir yerde olusturuyoruz schemayı baska bir clojure projesinden olusturup bu dosya yoluna improt ediyorum,
                                                                            ;; gerekirse silip bastan  ekleyebiliriz.
-                                                                           :storage-dir "/Users/bariscanates/prj/baris/Student-Registration-Electric/student7/poms-db"
+                                                                           :storage-dir "/Users/bariscanates/prj/colabio/poms01/poms-db"
                                                                            ;aynı anda birden fazla repl ile dbye bağlanmak istiyorsak system adını değiştirmeliyiz. örneğin "di".
                                                                            :system "ci"})))
   ;db ismi "poms-db" burada olusturulan db ile oluşturduğumuz dbinin ismi aynı olmalı buna dikakt edelim.

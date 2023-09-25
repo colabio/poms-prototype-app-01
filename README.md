@@ -1,4 +1,12 @@
-# electric-starter-app
+# POMS Demo project CONFIG
+```
+(alter-var-root #'datomic-client (constantly (datomic.client.api/client {:server-type :dev-local
+:storage-dir "ADD YOUR ABSOLUTE DATABASE PATH HERE" 
+;CONTENT/REPO DATABASE PATH: poms-db/ci/poms-db 
+:system "ci"})))
+```
+
+# POMS Demo project
 
 ```
 $ clj -A:dev -X user/main
@@ -13,89 +21,57 @@ shadow-cljs - nREPL server started on port 9001
 👉 App server available at http://0.0.0.0:8080
 ```
 
-# Error reporting
+# POMS Demo Project Usecase
 
-Reproduce this now and confirm error handling works so you trust it:
+1.
+    1. Satın alma uzmanı, kullanıcı adı ve şifresiyle sisteme giriş yapar.
+    2. Sistem, bilgileri doğrular ve profili sunar.
+    3. Satın alma uzmanı, "proje oluştur" ekranına yönlendirlir.
+    4. Sistem, proje hakkında girilmesi gereken "genel bilgiler" ekranını sunar.
+    5. Satın alma uzmanı istenen bilgileri doldurur ve create butonuna tıklar:
 
-![screenshot of electric error reporting](readme-electric-error-reporting-proof.png)
+- Username:
+- Contact Number:
+- Project Title:
+- Start Date:
+- Finish Date:
+- Documents:
 
-Electric is a reactive (async) language. Like React.js, we reconstruct synthetic async stack traces. If you aren't seeing them, something is wrong!
+    6. Sistem, genel bilgileri veri tabanına kaydeder ve sonraki aşamaya kullanıcı yönlendirir.
+    7. Sistem kullanıcıdan aktif bir proje için RFP olusturma ekranını sunar ve gerekli bilgilerin doldurulmasını
+       ister.
 
-# Logging
+- category:
+- Rfp Title:
+- Item Amount:
+- Explanation:
+- Releated Project Id:
 
-The Electric server logs. The default logger config is slightly verbose by default to force you to see it working:
+    8. Sistem, sipariş(RFP) bilgilerini veri tabanına kaydeder, sonraki aşamaya (tedarikçi bilgileri formu)
+       geçer ve kayıtlı tüm tedarikçileri isme göre sıralar. (A’dan Z’ye doğru)
+    9. Satın alma uzmanı, fiyat isteyeceği tedarikçilerin kayıtlı tedarikçiler listesinde olup olmadığını kontrol eder.
+    10. Satın alma uzmanının çalışmak istediği bir tedarikçi kayıtlı tedarikçi listesinde bulunmamaktadır bu nedenle
+        isteme yeni tedarikçi eklemek ister ve Tedarikçi ekle butonuna tıklar.
+    11. Sistem, yeni bir tablo sunar ve satın alma uzmanı bilgileri girer, sistem yeni tedarikçiyi veritabanına kaydeder
+    12. Sistem, bilgileri girilen tedarikçileri veri tabanına kaydeder ve uzmana "supplier information screen"
+        ekranında gösterir kullanıcı devamında proje önizleme butonuna basar.
+    13. Satın alma uzmanı, ön izleme ekranında gösterilen bilgileri kontrol eder ve "proje başlat" talimatını verir.
+    14. Sistem, tedarikçileri "teklif giriş ekranına" yönlendirir ve tedarikçiler, "teklif gir" talimatını verir,
+        tekliflerini girerler.
+    15. Sistem, tedarikçilerin girdiği teklifleri veri tabanına kaydeder, satın alma uzmanına bildirim
+        gönderir.
+    17. Satın alma uzmanı, sistem "Approve Proposal" ekranında tedarikçilerin
+        tekliflerini en iyi tekliften en kötü teklife doğru gösterir.
+    18. Satın alma uzmanı, "Approve Proposal" ekranında uygun bulduğu tedarikçileri onaylar, sistem
+        tedarikçilere bildirim gönderir ve proje sonlanır.
+    19. Sistem, tüm paydaşlara tedarikçilerin hazırladığı siparişlerin durumlarını takip etmesi için
+        "sipariş ekranı" sunar ve bildirim gönderir. Gerçekleşen her bir güncelleme, siparişler teslim
+        edilene kadar ekranda gösterilir.
 
-```
-DEBUG hyperfiddle.electric.impl.env: reloading app.todo-list
-DEBUG hyperfiddle.electric-jetty-adapter: Client disconnected for an unknown reason (browser default close code) {:status 1005, :reason nil}
-DEBUG hyperfiddle.electric-jetty-adapter: Websocket handler completed gracefully.
-DEBUG hyperfiddle.electric-jetty-adapter: WS connect ...
-DEBUG hyperfiddle.electric.impl.env: reloading app.todo-list
-DEBUG hyperfiddle.electric-jetty-adapter: Client disconnected for an unknown reason (browser default close code) {:status 1005, :reason nil}
-```
+# DB Schema Diagram (YUML)
 
-**Silence the Electric debug logs by live editing logback.xml** and setting `name="hyperfiddle"` to `level="INFO"`, it will hot code reload so no restart is needed. Please **do NOT disable logs entirely**; the Electric server logs one important warning at the `INFO` level we call **unserializable reference transfer**, here is an example:
+![img.png](img.png)
 
-```
-(e/defn TodoCreate []
-  (e/client
-    (InputSubmit. (e/fn [v]
-                    (e/server
-                      (d/transact! !conn [{:task/description v
-                                           :task/status :active}])
-                      nil))))) ;     <-- here
-```
 
-Note the intentional `nil` in the final line. If you remove the nil — try it right now — Electric will attempt to serialize whatever `d/transact!` returns — a reference — and stream it to the client. Since that reference cannot be serialized, Electric will send `nil` instead, and log at the `INFO` level:
 
-```
-INFO  hyperfiddle.electric.impl.io: Unserializable reference transfer: datascript.lru$cache$reify__35945 datascript.lru$cache$reify__35945@48ea0f24
-INFO  hyperfiddle.electric.impl.io: Unserializable reference transfer: datascript.db.Datom #datascript/Datom [1 :task/description "asdf" 536870913 true]
-...
-```
 
-We decided not to throw an exception here because it is almost always unintentional when this happens. **Do not disable this warning, it will save you one day!** If you want to target this exact message, use this:
-`<logger name="hyperfiddle.electric.impl.io" level="DEBUG" additivity="false"><appender-ref ref="STDOUT" /></logger>`
-
-[Note: Perhaps we should revisit this decision in the future now that our exception handling is more mature.]
-
-# Deployment
-
-ClojureScript optimized build, Dockerfile, Uberjar, Github actions CD to fly.io
-
-```
-HYPERFIDDLE_ELECTRIC_APP_VERSION=`git describe --tags --long --always --dirty`
-clojure -X:build uberjar :jar-name "app.jar" :version '"'$HYPERFIDDLE_ELECTRIC_APP_VERSION'"'
-java -DHYPERFIDDLE_ELECTRIC_SERVER_VERSION=$HYPERFIDDLE_ELECTRIC_APP_VERSION -jar app.jar
-```
-
-```
-docker build --progress=plain --build-arg VERSION="$HYPERFIDDLE_ELECTRIC_APP_VERSION" -t electric-starter-app .
-docker run --rm -p 7070:8080 electric-starter-app
-```
-
-```
-fly launch # generate fly.toml
-fly status
-fly regions list
-fly platform vm-sizes
-fly scale vm shared-cpu-4x
-NO_COLOR=1 fly deploy --build-arg VERSION="$HYPERFIDDLE_ELECTRIC_APP_VERSION"
-# `NO_COLOR=1` disables docker-cli pagination to see full log in case of exception
-# `--build-only` tests the build on fly.io without deploying
-
-https://fly.io/docs/about/pricing/
-https://fly.io/docs/apps/scale-machine/
-https://community.fly.io/t/how-to-specify-regions-to-run-in/3048
-
-# DNS
-fly ips list
-fly ips allocate-v4
-# configure DNS A and AAAA records
-fly certs create "*.electricfiddle.net" # quote * to avoid shell expansion
-fly certs list
-fly certs check "*.electricfiddle.net"
-fly certs show "*.electricfiddle.net"
-
-https://electric-starter-app.fly.dev/
-```

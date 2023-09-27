@@ -84,7 +84,6 @@
                       btn-state (get (e/watch !state) :btn1-is-clicked)
                       ]
 
-
                   (dom/element "style" (dom/text "
                   ul{list-style-type: none; margin: 0; padding: 0; background-color: black; overflow: auto; }
                   li {float: left;}

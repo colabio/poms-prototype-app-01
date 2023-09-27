@@ -654,6 +654,28 @@
 ;; (.alert js/window "Hello from CLJS")
 
 
+
+(if (empty? (d/q
+              '[:find ?e
+                :where
+                [_ :project/id ?e]]
+              db)
+            )
+  1
+  (+ 1 (ffirst (take 1 (reverse (->> (d/q
+                                       '[:find ?e
+                                         :where
+                                         [_ :project/id ?e]]
+                                       db)
+                                     (sort-by last)
+                                     )
+                                )
+                     )
+               )
+     )
+  )
+
+
 (d/q
   '[:find ?pceid
     :in $ ?user ?userraw
@@ -1549,3 +1571,5 @@
     [?dd :company/brand-name ?dx]
     ]
   db 1)
+
+

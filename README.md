@@ -70,7 +70,7 @@ shadow-cljs - nREPL server started on port 9001
 
 # DB Schema Diagram (YUML)
 
-![img.png](img.png)
+![img_1.png](img_1.png)
 
 
 

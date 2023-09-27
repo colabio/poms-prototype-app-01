@@ -258,7 +258,13 @@
                                                                    ]
                                                                  db (read-string rfp-id)))
                                                         ]
-                                                    (d/transact conn {:tx-data [{:proposal/id             (get-free-proposal-id db)
+                                                    (d/transact conn {:tx-data [{:proposal/id             (e/server
+                                                                                                            (binding [conn @(requiring-resolve 'user/datomic-conn)]
+                                                                                                              (binding [db (d/db conn)]
+                                                                                                                (get-free-proposal-id db)
+                                                                                                                )
+                                                                                                              )
+                                                                                                            )
                                                                                  :proposal/supplier-id    [:company/id (get-company-id-by-name supplier-id db)]
                                                                                  :proposal/amount         (read-string amount)
                                                                                  :proposal/project-id     [:project/id project-id]

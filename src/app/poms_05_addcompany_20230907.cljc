@@ -160,7 +160,13 @@
 
                         (ui/button
                           (e/fn []
-                                (e/server (d/transact conn {:tx-data [{:company/id          (e/server (get-free-company-id db))
+                                (e/server (d/transact conn {:tx-data [{:company/id          (e/server
+                                                                                              (binding [conn @(requiring-resolve 'user/datomic-conn)]
+                                                                                                (binding [db (d/db conn)]
+                                                                                                  (get-free-company-id db)
+                                                                                                  )
+                                                                                                )
+                                                                                              )
                                                                        :company/brand-name  brand-name
                                                                        :company/email       email
                                                                        :company/phonenumber phonenumber

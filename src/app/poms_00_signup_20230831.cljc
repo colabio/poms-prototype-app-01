@@ -96,6 +96,11 @@
                       (dom/legend
                         (dom/text "POMS Signup")
                         (dom/props {:style {:text-align "center"}}))
+
+                      (ui/date (e/fn [v] (swap! !state assoc :in v))
+                               (dom/props {:style {:name "username"}}))
+
+
                       (dom/p (dom/text "username:" (dom/props {:class "text"
                                                                }))
                              (ui/input username

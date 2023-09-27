@@ -112,7 +112,7 @@
                         (dom/p (dom/text "Password:")
                                (ui/input password
                                          (e/fn [v] (swap! !state assoc :password v))
-                                         (dom/props {:style {:name "PASSWORD"}})
+                                         (dom/props {:style {:type "password" :id "password" :name "password" :value "FakePSW"}})
                                          ))
 
                         (dom/button

@@ -134,7 +134,11 @@
                                           (dom/tr
                                             (dom/td (dom/text company))
                                             (dom/td (dom/text item-amount))
-                                            (dom/td (dom/text order-status))
+                                            (dom/td (dom/text (case order-status
+                                                                :proposal-status/ongoing "Ongoing"
+                                                                :proposal-status/waiting "Waiting"
+                                                                :proposal-status/declined "Declined"
+                                                                )))
                                             )
 
                                           )

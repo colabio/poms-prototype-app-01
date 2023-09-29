@@ -185,7 +185,11 @@
                                                    )
                                                  (dom/tr
                                                    (dom/td (dom/text "Category"))
-                                                   (dom/td (dom/text rfp-category))
+                                                   (dom/td (dom/text (case rfp-category
+                                                                       :service/bilgisayar  "Bilgisayar"
+                                                                       :service/seyahat "Seyahat"
+                                                                       :service/konaklama "Konaklama"
+                                                                       )))
                                                    )
                                                  (dom/tr
                                                    (dom/td (dom/text "Details"))

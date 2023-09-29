@@ -84,7 +84,6 @@
                       btn-state (get (e/watch !state) :btn1-is-clicked)
                       ]
 
-
                   (dom/element "style" (dom/text "
                   ul{list-style-type: none; margin: 0; padding: 0; background-color: black; overflow: auto; }
                   li {float: left;}
@@ -199,7 +198,11 @@
                                                    )
                                                  (dom/tr
                                                    (dom/td (dom/text "Category"))
-                                                   (dom/td (dom/text rfp-category))
+                                                   (dom/td (dom/text (case rfp-category
+                                                                       :service/bilgisayar  "Bilgisayar"
+                                                                       :service/seyahat "Seyahat"
+                                                                       :service/konaklama "Konaklama"
+                                                                       )))
                                                    )
                                                  (dom/tr
                                                    (dom/td (dom/text "Details"))
@@ -259,7 +262,13 @@
                                                                    ]
                                                                  db (read-string rfp-id)))
                                                         ]
-                                                    (d/transact conn {:tx-data [{:proposal/id             (get-free-proposal-id db)
+                                                    (d/transact conn {:tx-data [{:proposal/id             (e/server
+                                                                                                            (binding [conn @(requiring-resolve 'user/datomic-conn)]
+                                                                                                              (binding [db (d/db conn)]
+                                                                                                                (get-free-proposal-id db)
+                                                                                                                )
+                                                                                                              )
+                                                                                                            )
                                                                                  :proposal/supplier-id    [:company/id (get-company-id-by-name supplier-id db)]
                                                                                  :proposal/amount         (read-string amount)
                                                                                  :proposal/project-id     [:project/id project-id]

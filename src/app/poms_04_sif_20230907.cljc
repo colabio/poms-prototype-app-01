@@ -101,7 +101,11 @@
                                                                                      )]
                                         (dom/tr
                                           (dom/td (dom/text brand-name))
-                                          (dom/td (dom/text category))
+                                          (dom/td (dom/text (case category
+                                                              :service/bilgisayar  "Bilgisayar"
+                                                              :service/seyahat "Seyahat"
+                                                              :service/konaklama "Konaklama"
+                                                              )))
                                           (dom/td (dom/text phonenumber))
                                           )
 

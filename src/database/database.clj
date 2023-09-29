@@ -1572,4 +1572,6 @@
     ]
   db 1)
 
+(macroexpand '(-> dt .toISOString (subs 0 10)))
+
 

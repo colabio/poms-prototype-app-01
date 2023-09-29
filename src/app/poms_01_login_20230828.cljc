@@ -1,5 +1,6 @@
 (ns app.poms-01-login-20230828
   (:require contrib.str
+            [clojure.string :as str]
             [hyperfiddle.electric :as e]
             [hyperfiddle.electric-dom2 :as dom]
     ;datomic require'ı asagıdaki
@@ -26,6 +27,13 @@
                                                         )
           )
    )
+
+
+(defn validation-message [username]
+  (let [username (str/trim username)]
+    (cond
+      (empty? username) "Username is required"
+      (not (<= 5 (count username) 12)) "Username must be between 5 and 12 characters.")))
 
 
 (e/defn login-page []
@@ -55,7 +63,14 @@
                   .home {background-color: darkred;}
                   li a:hover {
                   background-color: #405d27;
-                  }"))
+                  legend {font-size: 25px; font-style: italic;} p {margin-bottom: 0}
+                  }
+                  .error { color: red;display: none;}
+                  input:invalid+.error, input:invalid:out-of-range+.error {display: block;}
+                  input:valid+.error {display: none;}
+                  input:valid {border: 2px solid green;}
+                  input:focus:invalid {border: 2px solid red;}
+                  "))
                   (dom/ul (dom/props {:class "ul"})
                           (dom/li
                             (dom/a (dom/props {:class "home" :href "http://localhost:8080/"})
@@ -107,12 +122,12 @@
                         (dom/p (dom/text "Username:")
                                (ui/input username
                                          (e/fn [v] (swap! !state assoc :username v))
-                                         (dom/props {:style {:name "USERNAME"}})
+                                         (dom/props {:type "text" :name "customString" :pattern "[A-Za-z]{3}" :title "Enter a 3-letter string"})
                                          ))
                         (dom/p (dom/text "Password:")
                                (ui/input password
                                          (e/fn [v] (swap! !state assoc :password v))
-                                         (dom/props {:style {:type "password" :id "password" :name "password" :value "FakePSW"}})
+                                         (dom/props {:style {:name "PASSWORD" :type "password" :value= "FakePSW"}})
                                          ))
 
                         (dom/button

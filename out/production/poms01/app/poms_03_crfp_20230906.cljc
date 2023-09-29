@@ -12,18 +12,6 @@
 (e/def db)
 ;; bu kısımda zorunlu
 
-#?(:clj (defn add-rfp [map conn]
-          (d/transact conn {:tx-data [{:rfp/id          (get map :id)
-                                       :rfp/category    (get map :category)
-                                       :rfp/name        (get map :name)
-                                       :rfp/item-amount (get map :item-amount)
-                                       :rfp/explanation (get map :explanation)
-                                       :rfp/project-id  (get map :project-id)
-                                       }
-                                      ]})
-          )
-   )
-
 #?(:clj (defn get-free-rfp-id [db] (if (empty? (d/q
                                                  '[:find ?e
                                                    :where
@@ -46,9 +34,6 @@
           )
    )
 
-
-
-;;TODO rfp name attributunun ismini değiştirelim daha iyi bir isim bulalım
 (e/defn create-rfp []
         (e/server
           (binding [conn @(requiring-resolve 'user/datomic-conn)]

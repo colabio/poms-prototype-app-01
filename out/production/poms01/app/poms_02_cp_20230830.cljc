@@ -67,18 +67,21 @@
 
 
 
+
 (e/defn create-project []
         (e/server
           (binding [conn @(requiring-resolve 'user/datomic-conn)]
             (binding [db (d/db conn)]
+
               ;bind etmek zorundayız dbyi calıstırmak için.
               (e/client
+
                 (let [!state (atom {
                                     :username        ""
                                     :company         ""
                                     :phone-number    ""
                                     :project-title   ""
-                                    :start-date      ""
+                                    :start-date      (js/Date.)
                                     :finish-date     ""
                                     :docs            ""
                                     :btn1-is-clicked false
@@ -175,16 +178,14 @@
                                          ))
                         (dom/p (dom/text "start date:" (dom/props {:class "text"
                                                                    }))
-                               (ui/input start-date
-                                         (e/fn [v] (swap! !state assoc :start-date v))
-                                         (dom/props {:style {:name "brand-name"}})
-                                         ))
+                               (ui/date
+                                 (subs (.toISOString start-date) 0 10) (swap! !state assoc :start-date v))
+                               )
                         (dom/p (dom/text "finish date:" (dom/props {:class "text"
                                                                     }))
-                               (ui/input finish-date
-                                         (e/fn [v] (swap! !state assoc :finish-date v))
-                                         (dom/props {:style {:name "email"}})
-                                         ))
+                               (ui/date
+                                 (subs (.toISOString finish-date) 0 10) (swap! !state assoc :finish-date v))
+                               )
                         (dom/p (dom/text "documents:" (dom/props {:class "text"
                                                                   }))
                                (ui/input docs

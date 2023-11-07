@@ -1,5 +1,6 @@
 (ns app.poms-01-login-20230828
   (:require contrib.str
+            [clojure.string :as str]
             [hyperfiddle.electric :as e]
             [hyperfiddle.electric-dom2 :as dom]
     ;datomic require'ı asagıdaki
@@ -28,6 +29,28 @@
    )
 
 
+(defn validation-message [username]
+  (let [username (str/trim username)]
+    (cond
+      (empty? username) "Username is required"
+      (not (<= 5 (count username) 12)) "Username must be between 5 and 12 characters.")))
+
+
+(defn password-check [password]
+  (let [missing-conditions
+        (cond-> []
+                (not (re-matches #".*[0-9].*" password)) (conj "a digit")
+                (not (re-matches #".*[A-Za-z].*" password)) (conj "a letter")
+                (not (re-matches #".*[^0-9A-Za-z].*" password)) (conj "a special character")
+                (not (<= 5 (count password) 12)) (conj "must be between 5-12 characters"))
+        ]
+    (if (empty? missing-conditions)
+      ""
+      (str "Password is missing " (clojure.string/join " and " missing-conditions) "."))))
+
+
+
+
 
 (e/defn login-page []
         (e/server
@@ -36,18 +59,22 @@
               ;bind etmek zorundayız dbyi calıstırmak için.
               (e/client
                 (let [!state (atom {
-                                    :username        ""
-                                    :password        ""
-                                    :button1         ""
-                                    :button2         ""
-                                    :login-outh      ""
-                                    :btn1-is-clicked false
-                                    :login-info      "Welcome! Colabio makes life easier..."
+                                    :username           ""
+                                    :password           ""
+                                    :button1            ""
+                                    :button2            ""
+                                    :login-outh         ""
+                                    :btn1-is-clicked    false
+                                    :login-info         "Welcome! Colabio makes life easier..."
+                                    :validate-username? false
+                                    :validate-password? false
                                     })
                       username (get (e/watch !state) :username)
                       password (get (e/watch !state) :password)
                       btn-state (get (e/watch !state) :btn1-is-clicked)
                       login-info (get (e/watch !state) :login-info)
+                      validate-username? (get (e/watch !state) :validate-username?)
+                      validate-password? (get (e/watch !state) :validate-password?)
                       ]
                   (dom/element "style" (dom/text "
                   ul{list-style-type: none; margin: 0; padding: 0; background-color: black; overflow: auto; }
@@ -58,11 +85,7 @@
                   background-color: #405d27;
                   legend {font-size: 25px; font-style: italic;} p {margin-bottom: 0}
                   }
-                  .error { color: red;display: none;}
-                  input:invalid+.error, input:invalid:out-of-range+.error {display: block;}
-                  input:valid+.error {display: none;}
-                  input:valid {border: 2px solid green;}
-                  input:focus:invalid {border: 2px solid red;}
+
                   "))
                   (dom/ul (dom/props {:class "ul"})
                           (dom/li
@@ -115,13 +138,31 @@
                         (dom/p (dom/text "Username:")
                                (ui/input username
                                          (e/fn [v] (swap! !state assoc :username v))
+                                         (dom/on "keydown" (fn [] (swap! !state assoc :validate-username? true)))
                                          (dom/props {:type "text" :name "customString" :pattern "[A-Za-z]{3}" :title "Enter a 3-letter string"})
-                                         ))
+                                         )
+                               (when validate-username?
+                                 (if-let [message (validation-message username)]
+                                   (dom/span
+                                     (dom/props {:style {:font-size "10px" :color "red"}})
+                                     (dom/text message))
+                                   (swap! !state assoc :validate-username? false)
+                                   ))
+                               )
                         (dom/p (dom/text "Password:")
                                (ui/input password
                                          (e/fn [v] (swap! !state assoc :password v))
+                                         (dom/on "keydown" (fn [] (swap! !state assoc :validate-password? true)))
                                          (dom/props {:style {:name "PASSWORD" :type "password" :value= "FakePSW"}})
-                                         ))
+                                         )
+                               (when validate-password?
+                                 (if-let [message (password-check password)]
+                                   (dom/span
+                                     (dom/props {:style {:font-size "10px" :color "red"}})
+                                     (dom/text message))
+                                   (swap! !state assoc :validate-password? false)
+                                   ))
+                               )
 
                         (dom/button
                           (dom/on "click" (fn [] (swap! !state assoc :btn1-is-clicked true)))

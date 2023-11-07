@@ -652,6 +652,9 @@
         )
 
 ;; (.alert js/window "Hello from CLJS")
+; "Password is missing a special character."
+
+
 
 
 
@@ -976,6 +979,74 @@
     ":proposal/client-company  " [:company/id 1]
     ":proposal/client-person  " [:user/id 1]
     )
+
+(defn password-check [password]
+  (let [missing-conditions
+        (cond-> []
+                (not (re-matches #".*[0-9].*" password))
+                (conj "a digit")
+                (not (re-matches #".*[A-Za-z].*" password))
+                (conj "a letter")
+                (not (re-matches #".*[^0-9A-Za-z].*" password))
+                (conj "a special character")
+                (not (<= 5 (count password) 12))
+                (conj "must be between 5-12 characters"))]
+    (if (empty? missing-conditions)
+      "Password is strong."
+      (str "Password is missing " (clojure.string/join " and " missing-conditions) "."))))
+
+
+
+(defn sort-table-by-column [table column]
+  (let [rows (js->clj (.getElementsByTagName table "tr") :keywordize-keys true)
+        get-cell-text (fn [row]
+                        (-> row
+                            (.getElementsByTagName "td")
+                            (aget column)
+                            (.textContent)
+                            (.trim)))]
+    (sort-by #(get-cell-text %) (rest rows))))
+
+(defn sort-table [table column]
+  (let [sorted-rows (sort-table-by-column table column)
+        tbody (js->clj (.querySelector table "tbody") :keywordize-keys true)]
+    (doseq [row sorted-rows]
+      (.appendChild tbody row))))
+
+
+(def table-data
+  [{:id 1 :name "John" :age 25}
+   {:id 2 :name "Alice" :age 30}
+   {:id 3 :name "Bob" :age 22}])
+
+(defn sort-table-by-column [data column-key]
+  (sort-by #(get % column-key) data))
+
+(defn main []
+  (let [sorted-data (sort-table-by-column table-data :name)]
+    (doseq [row sorted-data]
+      (println (str "ID: " (:id row) ", Name: " (:name row) ", Age: " (:age row))))))
+
+(main)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (let [[project-id client-company client-person rfp-item-amount]
       (first (d/q
@@ -1573,5 +1644,3 @@
   db 1)
 
 (macroexpand '(-> dt .toISOString (subs 0 10)))
-
-

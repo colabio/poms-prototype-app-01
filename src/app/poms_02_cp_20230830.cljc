@@ -179,12 +179,12 @@
                         (dom/p (dom/text "start date:" (dom/props {:class "text"
                                                                    }))
                                (ui/date
-                                 (subs (.toISOString start-date) 0 10) (swap! !state assoc :start-date v))
+                                 (subs (.toISOString start-date) 0 10) (e/fn [v] (swap! !state assoc :start-date v)))
                                )
                         (dom/p (dom/text "finish date:" (dom/props {:class "text"
                                                                     }))
                                (ui/date
-                                 (subs (.toISOString finish-date) 0 10) (swap! !state assoc :finish-date v))
+                                 (subs (.toISOString finish-date) 0 10) (e/fn [v] (swap! !state assoc :finish-date v)))
                                )
                         (dom/p (dom/text "documents:" (dom/props {:class "text"
                                                                   }))
